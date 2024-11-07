@@ -1,12 +1,6 @@
 import React from 'react';
 import {useQuery} from '@tanstack/react-query';
-import {
-  ActivityIndicator,
-  Dimensions,
-  Image,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {ActivityIndicator, Dimensions, StyleSheet, View} from 'react-native';
 import {IPhoto, ISearchResponse} from '../types/photo';
 import Animated, {
   interpolate,
@@ -72,6 +66,7 @@ export function PexelsWallpapers() {
         }}
         onScroll={onScroll}
         scrollEventThrottle={1000 / 60} //16.6ms
+        showsHorizontalScrollIndicator={false}
       />
     </View>
   );
@@ -142,6 +137,7 @@ const BackDropPhoto = ({
   });
   return (
     <Animated.Image
+      key={index}
       style={[StyleSheet.absoluteFillObject, stylez]}
       source={{uri: photo.src.large}}
     />
