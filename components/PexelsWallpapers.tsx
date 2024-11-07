@@ -1,9 +1,10 @@
 import {useQuery} from '@tanstack/react-query';
 import {Text, View} from 'react-native';
+import {ISearchResponse} from '../types/photo';
 
 export function PexelsWallpapers() {
   const apiKey = 't3dvevS1g2wkO09x1tMILyxgSCDM8LzLaTlPQoUDdQgdd2pKiFnZPvsD';
-  const {data, error, isLoading, isError} = useQuery({
+  const {data, error, isLoading, isError} = useQuery<ISearchResponse>({
     queryKey: ['wallpapers'],
     queryFn: async () => {
       const response = await fetch(
