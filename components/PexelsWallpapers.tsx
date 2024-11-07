@@ -1,14 +1,20 @@
 import React from 'react';
 import {useQuery} from '@tanstack/react-query';
-import {
-  ActivityIndicator,
-  Dimensions,
-  FlatList,
-  Image,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {ActivityIndicator, Dimensions, StyleSheet, View} from 'react-native';
 import {IPhoto, ISearchResponse} from '../types/photo';
+import Animated, {
+  interpolate,
+  SharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
+// solves the cache issue
+// npx react-native start --reset-cache
+const {width} = Dimensions.get('screen');
+const _imageWidth = width * 0.7;
+const _imageHeight = width * 1.76;
+const _spacing = 12;
 
 export function PexelsWallpapers() {
   const apiKey = 't3dvevS1g2wkO09x1tMILyxgSCDM8LzLaTlPQoUDdQgdd2pKiFnZPvsD';
@@ -26,6 +32,11 @@ export function PexelsWallpapers() {
       return response.json();
     },
   });
+
+  const scrollX = useSharedValue(0);
+  const onScroll = useAnimatedScrollHandler(e => {
+    scrollX.value = e.contentOffset.x / (_imageWidth + _spacing);
+  });
   if (isLoading) {
     return (
       <View style={styles.centered}>
@@ -35,25 +46,67 @@ export function PexelsWallpapers() {
   }
   return (
     <View style={styles.centered}>
-      <FlatList
+      <Animated.FlatList
+        style={{flexGrow: 0}}
         data={data?.photos}
+        horizontal
         renderItem={({item, index}) => {
-          return <Photo photo={item} key={index} />;
+          return <Photo photo={item} index={index} scrollX={scrollX} />;
         }}
+        snapToInterval={_imageWidth + _spacing}
+        decelerationRate={'fast'}
+        contentContainerStyle={{
+          gap: _spacing,
+          paddingHorizontal: (width - _imageWidth) / 2,
+        }}
+        onScroll={onScroll}
+        scrollEventThrottle={1000 / 60} //16.6ms
       />
     </View>
   );
 }
-const {width} = Dimensions.get('screen');
-const _imageWidth = width * 0.7;
-const _imageHeight = width * 1.76;
-const Photo = ({photo, key}: {photo: IPhoto; key: number}) => {
-  console.log(photo);
+
+const Photo = ({
+  photo,
+  index,
+  scrollX,
+}: {
+  photo: IPhoto;
+  index: number;
+  scrollX: SharedValue<number>;
+}) => {
+  const stylez = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          scale: interpolate(
+            scrollX.value,
+            [index - 1, index, index + 1],
+            [1.6, 1, 1.6],
+          ),
+        },
+        {
+          rotate: `${interpolate(
+            scrollX.value,
+            [index - 1, index, index + 1],
+            [15, 0, -15],
+          )}deg`,
+        },
+      ],
+    };
+  });
   return (
-    <View key={key}>
-      <Image
-        source={{uri: photo.src.medium}}
-        style={{width: _imageWidth, height: _imageHeight}}
+    <View
+      style={{
+        width: _imageWidth,
+        height: _imageHeight,
+        borderRadius: 18,
+        overflow: 'hidden',
+      }}
+      key={index}>
+      <Animated.Image
+        source={{uri: photo.src.large}}
+        style={[{flex: 1}, stylez]}
       />
     </View>
   );
