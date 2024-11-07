@@ -1,4 +1,5 @@
-import React, {useEffect, useState} from 'react';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import {useState} from 'react';
 import {
   Button,
   SafeAreaView,
@@ -11,7 +12,8 @@ import {
 } from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-
+import {PexelsWallpapers} from './components/PexelsWallpapers';
+const queryClient = new QueryClient();
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   const [count, setCount] = useState(0);
@@ -19,28 +21,15 @@ function App(): React.JSX.Element {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Make an API call to JSONPlaceholder
-    fetch('https://jsonplaceholder.typicode.com/posts')
-      .then(response => response.json())
-      .then(json => {
-        setData(json);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-        setLoading(false);
-      });
-  }, []);
-  console.log(data);
   return (
-    <View style={styles.container}>
-      <Text>You clicked {count} times</Text>
-      <Button onPress={() => setCount(count + 1)} title="Click me!" />
-    </View>
+    <QueryClientProvider client={queryClient}>
+      <View style={styles.container}>
+        <PexelsWallpapers />
+        <Text>You clicked {count} times</Text>
+        <Button onPress={() => setCount(count + 1)} title="Click me!" />
+      </View>
+    </QueryClientProvider>
   );
   // return (
   //   <SafeAreaView style={backgroundStyle}>
@@ -64,6 +53,7 @@ function App(): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
   },
