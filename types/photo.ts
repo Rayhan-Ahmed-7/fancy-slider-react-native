@@ -1,12 +1,12 @@
 export interface ISearchResponse {
   page: number;
   per_page: number;
-  photos: Photo[];
+  photos: IPhoto[];
   total_results: number;
   next_page: string;
 }
 
-export interface Photo {
+export interface IPhoto {
   id: number;
   width: number;
   height: number;
