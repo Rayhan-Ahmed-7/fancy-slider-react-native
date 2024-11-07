@@ -1,6 +1,12 @@
 import React from 'react';
 import {useQuery} from '@tanstack/react-query';
-import {ActivityIndicator, Dimensions, StyleSheet, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  StyleSheet,
+  View,
+} from 'react-native';
 import {IPhoto, ISearchResponse} from '../types/photo';
 import Animated, {
   interpolate,
@@ -46,6 +52,11 @@ export function PexelsWallpapers() {
   }
   return (
     <View style={styles.centered}>
+      <View style={StyleSheet.absoluteFillObject}>
+        {data?.photos.map((photo, index) => (
+          <BackDropPhoto photo={photo} index={index} scrollX={scrollX} />
+        ))}
+      </View>
       <Animated.FlatList
         style={{flexGrow: 0}}
         data={data?.photos}
@@ -111,7 +122,31 @@ const Photo = ({
     </View>
   );
 };
-
+const BackDropPhoto = ({
+  photo,
+  index,
+  scrollX,
+}: {
+  photo: IPhoto;
+  index: number;
+  scrollX: SharedValue<number>;
+}) => {
+  const stylez = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(
+        scrollX.value,
+        [index - 1, index, index + 1],
+        [0, 1, 0],
+      ),
+    };
+  });
+  return (
+    <Animated.Image
+      style={[StyleSheet.absoluteFillObject, stylez]}
+      source={{uri: photo.src.large}}
+    />
+  );
+};
 const styles = StyleSheet.create({
   centered: {
     flex: 1,
