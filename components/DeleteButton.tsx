@@ -1,18 +1,11 @@
 import React from 'react';
-import {View, Text, StyleSheet, Pressable} from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-} from 'react-native-reanimated';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {Text, StyleSheet, Pressable} from 'react-native';
+import Animated, {useAnimatedStyle, withTiming} from 'react-native-reanimated';
 
-const DeleteButton = () => {
-  const fillWidth = useSharedValue(0);
-
+const DeleteButton = ({onClose, fillWidth}: any) => {
   const animatedStyle = useAnimatedStyle(() => ({
     width: `${fillWidth.value}%`,
-    backgroundColor: 'red',
+    backgroundColor: '#6200ee',
   }));
 
   const handlePressIn = () => {
@@ -20,11 +13,11 @@ const DeleteButton = () => {
   };
 
   const handlePressOut = () => {
-    fillWidth.value = withTiming(0, {duration: 300});
+    fillWidth.value = withTiming(0, {duration: 2000});
   };
 
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <>
       <Pressable
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
@@ -32,14 +25,15 @@ const DeleteButton = () => {
         <Animated.View style={[styles.fill, animatedStyle]} />
         <Text style={styles.text}>Delete</Text>
       </Pressable>
-    </GestureHandlerRootView>
+      <Pressable onPress={onClose} style={styles.closeButton}>
+        <Text style={styles.closeText}>X</Text>
+      </Pressable>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
+  buttonContainer: {
     alignItems: 'center',
   },
   button: {
@@ -62,6 +56,17 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     zIndex: 1,
+  },
+  closeButton: {
+    position: 'absolute',
+    right: '0%',
+    top: '20%',
+    padding: 10,
+    backgroundColor: '#ccc',
+    borderRadius: 8,
+  },
+  closeText: {
+    color: '#333',
   },
 });
 
