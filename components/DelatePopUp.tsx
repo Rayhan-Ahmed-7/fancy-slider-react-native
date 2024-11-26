@@ -46,18 +46,15 @@ export function DeletePopUp() {
   }));
 
   const animatedBorderStyle = useAnimatedStyle(() => {
-    heightValue.value = withSpring(fillWidth.value, {
+    heightValue.value = withSpring(fillWidth.value * 2, {
       damping: 10,
       stiffness: 100,
     });
     // Animate width after a delay
-    widthValue.value =
-      fillWidth.value > 50
-        ? withSpring(fillWidth.value, {
-            damping: 10,
-            stiffness: 100,
-          })
-        : 50;
+    widthValue.value = withSpring(fillWidth.value, {
+      damping: 10,
+      stiffness: 100,
+    });
 
     return {
       height: `${heightValue.value}%`,
@@ -171,7 +168,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(13, 3, 27, 1)',
+    backgroundColor: 'rgba(10, 2, 20, 1)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: -1,
