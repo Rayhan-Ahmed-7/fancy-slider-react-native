@@ -1,51 +1,120 @@
 import React, {useState} from 'react';
-import {Modal, StyleSheet, Text, View} from 'react-native';
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
+  withSpring,
+  runOnJS,
+  withDelay,
 } from 'react-native-reanimated';
 import DeleteButton from './DeleteButton';
-import {GestureHandlerRootView, Pressable} from 'react-native-gesture-handler';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import Icon from 'react-native-vector-icons/Ionicons';
+import LinearGradient from 'react-native-linear-gradient';
+
 export function DeletePopUp() {
   const [modalVisible, setModalVisible] = useState(false);
+  const popupScale = useSharedValue(0);
 
   const openModal = () => {
     setModalVisible(true);
+    popupScale.value = withSpring(1, {damping: 15, stiffness: 120});
   };
 
   const closeModal = () => {
-    setModalVisible(false);
+    popupScale.value = withSpring(0, {duration: 200}, () => {
+      runOnJS(setModalVisible)(false);
+    });
   };
-  const fillWidth = useSharedValue(0);
 
-  const animatedStyle = useAnimatedStyle(() => ({
+  const fillWidth = useSharedValue(0);
+  const heightValue = useSharedValue(0); // Shared value for height
+  const widthValue = useSharedValue(1);
+  const animatedPopupStyle = useAnimatedStyle(() => ({
+    transform: [{scale: popupScale.value}],
+    borderColor: 'red',
+  }));
+
+  const animatedFillStyle = useAnimatedStyle(() => ({
     height: `${fillWidth.value}%`,
   }));
+
+  const animatedBorderStyle = useAnimatedStyle(() => {
+    heightValue.value = withSpring(fillWidth.value, {
+      damping: 10,
+      stiffness: 100,
+    });
+    // Animate width after a delay
+    widthValue.value = withDelay(
+      500,
+      withSpring(fillWidth.value, {
+        damping: 10,
+        stiffness: 100,
+      }),
+    );
+    console.log(widthValue.value, 'from delay', heightValue.value);
+    return {
+      height: `${heightValue.value}%`, // Read shared value for height
+      width: `${widthValue.value}%`, // Read shared value for width
+    };
+  });
+
   return (
     <GestureHandlerRootView style={styles.container}>
-      <Pressable style={styles.triggerButton} onPress={openModal}>
+      <TouchableOpacity style={styles.triggerButton} onPress={openModal}>
         <Text style={styles.triggerText}>Open Popup</Text>
-      </Pressable>
+      </TouchableOpacity>
       <Modal
         visible={modalVisible}
         transparent={true}
         animationType="none"
         onRequestClose={closeModal}>
-        <View style={styles.modalOverlay}>
-          <Animated.View style={styles.popup}>
-            <Pressable onPress={closeModal} style={styles.closeButton}>
-              <Text style={styles.closeText}>
-                <Icon name="rocket" size={30} color="#900" />
-              </Text>
-            </Pressable>
-            <Animated.View style={[styles.fill, animatedStyle]} />
-            <View style={{padding: 20}}>
-              <Text style={styles.popupTitle}>Are you sure?</Text>
-              <DeleteButton fillWidth={fillWidth} />
-            </View>
-          </Animated.View>
-        </View>
+        <TouchableWithoutFeedback onPress={closeModal}>
+          <View style={styles.modalOverlay}>
+            <Animated.View style={[animatedPopupStyle]}>
+              <View style={styles.borderBox}>
+                <Animated.View
+                  style={[styles.leftBorder, animatedBorderStyle]}
+                />
+                <Animated.View
+                  style={[styles.rightBorder, animatedBorderStyle]}
+                />
+                <Animated.View style={styles.popup}>
+                  <Animated.View style={[styles.fill, animatedFillStyle]}>
+                    <LinearGradient
+                      colors={['rgba(160,40,40,0.4)', 'transparent']}
+                      style={styles.gradient}
+                      start={{x: 0, y: 0}}
+                      end={{x: 0, y: 1}}
+                    />
+                  </Animated.View>
+                  <View style={{padding: 15}}>
+                    <View style={styles.warningBox}>
+                      <View style={styles.deleteIcon}>
+                        <Icon name="alert" size={30} color={'white'} />
+                      </View>
+                    </View>
+                    <Text style={styles.popupTitle}>Delete Account</Text>
+                    <Text style={styles.popupWarningText}>
+                      Are you sure you want to delete your account?
+                    </Text>
+                    <DeleteButton fillWidth={fillWidth} />
+                  </View>
+                </Animated.View>
+              </View>
+              <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+                <Text style={styles.closeText}>Cancel</Text>
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </GestureHandlerRootView>
   );
@@ -61,7 +130,7 @@ const styles = StyleSheet.create({
   triggerButton: {
     padding: 15,
     backgroundColor: '#6200ee',
-    borderRadius: 8,
+    borderRadius: 10,
   },
   triggerText: {
     color: 'white',
@@ -69,21 +138,63 @@ const styles = StyleSheet.create({
   },
   fill: {
     position: 'absolute',
-    backgroundColor: 'red',
     width: '100%',
     height: '20%',
     top: 0,
     left: 0,
+    pointerEvents: 'none',
+  },
+  borderBox: {
+    padding: 1,
+    borderRadius: 10,
+    // backgroundColor: 'red',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  leftBorder: {
+    position: 'absolute',
+    top: 4,
+    width: 260,
+    height: 250,
+    transform: [{rotate: '0deg'}],
+    transformOrigin: 'center',
+    backgroundColor: 'rgba(160, 40, 40, 1)',
+  },
+  rightBorder: {
+    position: 'absolute',
+    right: 0,
+    bottom: 4,
+    width: 260,
+    height: 250,
+    transform: [{rotate: '0deg'}],
+    transformOrigin: 'center',
+    backgroundColor: 'rgba(160, 40, 40, 1)',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(13, 3, 27, 1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: -1,
+  },
+  warningBox: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  deleteIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: '50%',
+    backgroundColor: 'rgba(160, 40, 40, 1)',
+    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
   },
   popup: {
-    width: 300,
-    backgroundColor: 'white',
+    width: 260,
+    backgroundColor: '#1e1e1e',
     borderRadius: 10,
     alignItems: 'center',
     shadowColor: '#000',
@@ -95,23 +206,35 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   popupTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    textAlign: 'center',
+    color: 'white',
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  popupWarningText: {
+    textAlign: 'center',
+    color: '#e1e1e1',
+    fontSize: 13,
     marginBottom: 20,
   },
   closeButton: {
-    position: 'absolute',
-    right: '4%',
-    top: '10%',
-    width: 30,
-    height: 30,
+    width: 260,
+    height: 50,
+    marginTop: 10,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ccc',
-    borderRadius: 8,
+    backgroundColor: '#1e1e1e',
+    borderRadius: 10,
   },
   closeText: {
-    color: '#333',
+    fontSize: 16,
+    color: '#e1e1e1',
+  },
+  gradient: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
   },
 });

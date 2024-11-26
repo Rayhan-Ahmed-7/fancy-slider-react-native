@@ -5,7 +5,7 @@ import Animated, {useAnimatedStyle, withTiming} from 'react-native-reanimated';
 const DeleteButton = ({fillWidth}: any) => {
   const animatedStyle = useAnimatedStyle(() => ({
     width: `${fillWidth.value}%`,
-    backgroundColor: '#6200ee',
+    backgroundColor: 'rgba(198,40,40,1)',
   }));
 
   const handlePressIn = () => {
@@ -22,7 +22,7 @@ const DeleteButton = ({fillWidth}: any) => {
       onPressOut={handlePressOut}
       style={styles.button}>
       <Animated.View style={[styles.fill, animatedStyle]} />
-      <Text style={styles.text}>Delete</Text>
+      <Text style={styles.text}>PRESS AND HOLD TO DELETE</Text>
     </Pressable>
   );
 };
@@ -32,11 +32,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
-    width: 200,
+    width: 230,
     height: 50,
     borderRadius: 10,
     overflow: 'hidden',
-    backgroundColor: '#e0e0e0',
+    backgroundColor: 'rgba(198,40,40,.3)',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -49,7 +49,6 @@ const styles = StyleSheet.create({
   },
   text: {
     color: 'white',
-    fontWeight: 'bold',
     zIndex: 1,
   },
 });
