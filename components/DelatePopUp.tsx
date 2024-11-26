@@ -12,7 +12,6 @@ import Animated, {
   useSharedValue,
   withSpring,
   runOnJS,
-  withDelay,
 } from 'react-native-reanimated';
 import DeleteButton from './DeleteButton';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
@@ -52,17 +51,17 @@ export function DeletePopUp() {
       stiffness: 100,
     });
     // Animate width after a delay
-    widthValue.value = withDelay(
-      500,
-      withSpring(fillWidth.value, {
-        damping: 10,
-        stiffness: 100,
-      }),
-    );
-    console.log(widthValue.value, 'from delay', heightValue.value);
+    widthValue.value =
+      fillWidth.value > 50
+        ? withSpring(fillWidth.value, {
+            damping: 10,
+            stiffness: 100,
+          })
+        : 50;
+
     return {
-      height: `${heightValue.value}%`, // Read shared value for height
-      width: `${widthValue.value}%`, // Read shared value for width
+      height: `${heightValue.value}%`,
+      width: `${widthValue.value}%`,
     };
   });
 
