@@ -6,7 +6,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import DeleteButton from './DeleteButton';
 import {GestureHandlerRootView, Pressable} from 'react-native-gesture-handler';
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 export function DeletePopUp() {
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -22,7 +22,6 @@ export function DeletePopUp() {
   const animatedStyle = useAnimatedStyle(() => ({
     height: `${fillWidth.value}%`,
   }));
-  console.log(animatedStyle, 'for height');
   return (
     <GestureHandlerRootView style={styles.container}>
       <Pressable style={styles.triggerButton} onPress={openModal}>
@@ -35,10 +34,15 @@ export function DeletePopUp() {
         onRequestClose={closeModal}>
         <View style={styles.modalOverlay}>
           <Animated.View style={styles.popup}>
+            <Pressable onPress={closeModal} style={styles.closeButton}>
+              <Text style={styles.closeText}>
+                <Icon name="rocket" size={30} color="#900" />
+              </Text>
+            </Pressable>
             <Animated.View style={[styles.fill, animatedStyle]} />
             <View style={{padding: 20}}>
               <Text style={styles.popupTitle}>Are you sure?</Text>
-              <DeleteButton onClose={closeModal} fillWidth={fillWidth} />
+              <DeleteButton fillWidth={fillWidth} />
             </View>
           </Animated.View>
         </View>
@@ -94,5 +98,20 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 20,
+  },
+  closeButton: {
+    position: 'absolute',
+    right: '4%',
+    top: '10%',
+    width: 30,
+    height: 30,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ccc',
+    borderRadius: 8,
+  },
+  closeText: {
+    color: '#333',
   },
 });
