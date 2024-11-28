@@ -1,5 +1,11 @@
 import React from 'react';
-import {Canvas, Circle} from '@shopify/react-native-skia';
+import {
+  Canvas,
+  Circle,
+  Group,
+  LinearGradient,
+  vec,
+} from '@shopify/react-native-skia';
 import {
   useSharedValue,
   useDerivedValue,
@@ -37,12 +43,19 @@ const MyCanvas = () => {
   // Derived values for the Skia canvas
   const skiaX = useDerivedValue(() => x.value);
   const skiaY = useDerivedValue(() => y.value);
-
+  const r = screenWidth / 10;
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <GestureDetector gesture={pan}>
         <Canvas style={{flex: 1, backgroundColor: 'black'}}>
-          <Circle cx={skiaX} cy={skiaY} r={30} color="red" />
+          {/* <Circle cx={skiaX} cy={skiaY} r={30} color="red" /> */}
+          <Circle cx={skiaX} cy={skiaY} r={r}>
+            <LinearGradient
+              start={vec(0, 0)}
+              end={vec(2 * skiaX.value, 2 * skiaY.value)}
+              colors={['#0061ff', '#60efff']}
+            />
+          </Circle>
         </Canvas>
       </GestureDetector>
     </GestureHandlerRootView>
